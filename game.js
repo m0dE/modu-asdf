@@ -1,19 +1,32 @@
-// Wait for the page and Modu engine to load
-window.addEventListener('load', () => {
+// Game initialization function
+function initGame() {
   // Check if Modu is available
   if (typeof Modu === 'undefined') {
-    console.error('Modu engine failed to load. Please check your internet connection.');
+    console.error('Modu engine is not loaded');
     return;
   }
+
+  console.log('Initializing game with Modu engine');
 
   const { createGame, AutoRenderer, Transform2D, Sprite } = Modu;
 
   // Get canvas and create game
   const canvas = document.getElementById('game');
+  if (!canvas) {
+    console.error('Canvas element not found');
+    return;
+  }
+
   const game = createGame();
 
   // Add the auto renderer plugin
-  game.addPlugin(AutoRenderer, canvas);
+  try {
+    game.addPlugin(AutoRenderer, canvas);
+    console.log('AutoRenderer plugin added successfully');
+  } catch (error) {
+    console.error('Failed to add AutoRenderer plugin:', error);
+    return;
+  }
 
   // Define a text entity
   game.defineEntity('helloText')
@@ -50,9 +63,15 @@ window.addEventListener('load', () => {
     .register();
 
   // Spawn entities
-  game.spawn('helloText');
-  game.spawn('subtitle');
-  const decoration = game.spawn('decoration');
+  try {
+    game.spawn('helloText');
+    game.spawn('subtitle');
+    game.spawn('decoration');
+    console.log('Entities spawned successfully');
+  } catch (error) {
+    console.error('Failed to spawn entities:', error);
+    return;
+  }
 
   // Add some animation
   let time = 0;
@@ -61,20 +80,27 @@ window.addEventListener('load', () => {
     
     // Make the decoration pulse
     const decoration = game.getEntity('decoration');
-    if (decoration) {
+    if (decoration && decoration.sprite) {
       decoration.sprite.radius = 30 + Math.sin(time * 3) * 10;
       decoration.sprite.color = `hsl(${200 + Math.sin(time * 2) * 60}, 70%, 50%)`;
     }
     
     // Make the title gently float
     const helloText = game.getEntity('helloText');
-    if (helloText) {
+    if (helloText && helloText.transform) {
       helloText.transform.y = 250 + Math.sin(time * 1.5) * 5;
     }
   });
 
   // Start the game
-  game.start();
+  try {
+    game.start();
+    console.log('Game started successfully!');
+  } catch (error) {
+    console.error('Failed to start game:', error);
+  }
+}
 
-  console.log('Hello World game started!');
-});
+// Initialize the game when this script loads
+// (Modu should already be loaded at this point)
+initGame();
